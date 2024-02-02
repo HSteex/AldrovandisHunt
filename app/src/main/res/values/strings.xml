@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Aldrovandi\'sHunt</string>
+    <string name="introText_0">Ciao sono Ulisse Aldrovandi, benvenuto nel mio Museo. Questa applicazione ti permetterà di imparare divertendoti, sei pronto? Premi su Continua per iniziare!</string>
+    <string name="introText_1">Il tuo scopo è collezionare tutte le carte sparse nel museo. Ogni carta nasconde al suo interno delle soprese. Per catturarle dovrai premere sulla carta e seguire i miei indizi cercando informazioni all\'interno del museo. Una volta capito di che essere vivente sto parlando potrai scansionarlo attraverso la fotocamera del tuo dispositivo. \n</string>
+    <string name="introText_2">"Bene, è tutto pronto. Ti chiedo soltanto un'ultimo favore, l'applicazione non funziona senza i permessi necessarri, ti chiedo quindi di Premere sul bottone Accetta permessi "</string>
+    <string name="collectionButton">Collection</string>
+    <string name="mapButton">Map</string>
+    <string name="uncommonRarity">Uncommon</string>
+    <string name="rareRarity">Rare</string>
+    <string name="epicRarity">Epic</string>
+    <string name="legendaryRarity">Legendary</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
