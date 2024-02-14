@@ -2,6 +2,7 @@ package com.example.aldrovandishunt.ui.myCollection
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -10,19 +11,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import com.example.aldrovandishunt.data.database.Carte
+import com.example.aldrovandishunt.data.database.Card
 
 @Composable
 fun CardGrid(
-    cardList: List<Carte>,
-    onCardClick: (Carte) -> Unit,
+    cardList: List<Card>,
+    onCardClick: (Card) -> Unit,
 ) {
     val horizontalSpacer = 36.dp
     val width= LocalConfiguration.current.screenWidthDp.dp
     val cardWidth = (width - (horizontalSpacer+16.dp))  / 2
 
     LazyVerticalGrid(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxSize(),
         columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalArrangement = Arrangement.spacedBy(horizontalSpacer)

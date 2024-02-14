@@ -11,4 +11,10 @@
     <string name="legendaryRarity">Legendary</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="AR_pointGround">Point the camera to the ground</string>
+    <string name="AR_tapToPlace">Tap on the ground to place a model</string>
+    <string name="AR3D_internal_error">Internal error</string>
+    <string name="AR3D_insufficient_light">Insufficient light</string>
+    <string name="AR3D_excessive_motion">Excessive motion</string>
+    <string name="AR3D_camera_in_use">Camera is used by another application</string>
 </resources>

@@ -21,4 +21,5 @@ object DataModule {
     @Provides
     fun providePlacesRepository(@ApplicationContext context: Context) =
         HuntRepository((context.applicationContext as HuntApplication).database.DatabaseDao())
+
 }

@@ -34,26 +34,35 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.aldrovandishunt.data.database.HuntDatabase
-import com.example.aldrovandishunt.ui.caccia.CacciaScreen
+import com.example.aldrovandishunt.ui.caccia.CaptureScreen
+import com.example.aldrovandishunt.ui.caccia.CaptureViewModel
 import com.example.aldrovandishunt.ui.myCollection.MyCollectionScreen
 import com.example.aldrovandishunt.ui.intro.IntroViewModel
+import com.example.aldrovandishunt.ui.itemOverlay.ARScene
 import com.example.aldrovandishunt.ui.mappa.MappaScreen
+import com.example.aldrovandishunt.ui.stanza.RoomViewModel
 import com.example.aldrovandishunt.ui.myCollection.MyCollectionViewModel
-import com.example.aldrovandishunt.ui.stanza.StanzaScreen
+import com.example.aldrovandishunt.ui.stanza.RoomScreen
+import com.google.android.filament.Engine
 import dagger.hilt.android.HiltAndroidApp
+import io.github.sceneview.loaders.ModelLoader
+import io.github.sceneview.node.CameraNode
+import io.github.sceneview.node.Node
 
 sealed class AppScreen(val name: String) {
     object Map : AppScreen("Map")
     object Room : AppScreen("Room")
     object Collection : AppScreen("My Collection")
     object Hunt : AppScreen("Hunt Screen")
+    object ARScreen : AppScreen("AR")
 }
 
 @HiltAndroidApp
@@ -76,21 +85,17 @@ fun TopAppBarFunction(
                 text = currentScreen,
                 fontWeight = FontWeight.Medium,
             )
-        },
-        colors = TopAppBarDefaults.mediumTopAppBarColors(
+        }, colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = colorResource(id = R.color.orangeButton),
-        ),
-        navigationIcon = {
+        ), navigationIcon = {
             if (canNavigateBack) {
                 IconButton(onClick = navigateUp) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back button"
+                        imageVector = Icons.Default.ArrowBack, contentDescription = "Back button"
                     )
                 }
             }
-        },
-        modifier = modifier
+        }, modifier = modifier
     )
 
 }
@@ -101,13 +106,11 @@ fun BottomBar(
     onMyCollectionClick: () -> Unit,
 ) {
     BottomAppBar(
-        containerColor = colorResource(id = R.color.orangeButton),
-        modifier = Modifier.height(48.dp)
+        containerColor = colorResource(id = R.color.orangeButton), modifier = Modifier.height(48.dp)
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
             Button(
-                onClick = onMapClick,
-                colors = ButtonDefaults.buttonColors(
+                onClick = onMapClick, colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     contentColor = Color.Black,
                 )
@@ -118,7 +121,7 @@ fun BottomBar(
                     Icon(
                         imageVector = Icons.Default.Map,
                         contentDescription = "Map button",
-                        modifier= Modifier.padding(end = 8.dp)
+                        modifier = Modifier.padding(end = 8.dp)
                     )
                     Text(text = stringResource(R.string.mapButton))
 
@@ -126,8 +129,7 @@ fun BottomBar(
                 }
             }
             Button(
-                onClick = onMyCollectionClick,
-                colors = ButtonDefaults.buttonColors(
+                onClick = onMyCollectionClick, colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     contentColor = Color.Black,
                 )
@@ -138,7 +140,7 @@ fun BottomBar(
                     Icon(
                         imageVector = Icons.Default.Backpack,
                         contentDescription = "My Collection button",
-                        modifier= Modifier.padding(end = 8.dp)
+                        modifier = Modifier.padding(end = 8.dp)
                     )
                     Text(text = stringResource(R.string.collectionButton))
 
@@ -155,37 +157,42 @@ fun BottomBar(
 @Composable
 fun Navigator(
     navController: NavHostController = rememberNavController(),
-
+    engine: Engine,
+    modelLoader: ModelLoader,
+    cameraNode: CameraNode,
+    centerNode: Node,
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentScreen = when(navBackStackEntry?.destination?.route) {
+    val currentRoute = navBackStackEntry?.destination?.route
+    val currentScreen = when (navBackStackEntry?.destination?.route) {
         AppScreen.Map.name -> stringResource(id = R.string.mapButton)
-        AppScreen.Room.name ->  "Room" //FIXME Vorrei dare il titolo in base alla stanza in cui ci si trova8i
+        AppScreen.Room.name -> "Room" //FIXME Vorrei dare il titolo in base alla stanza in cui ci si trova8i
         AppScreen.Collection.name -> stringResource(id = R.string.collectionButton)
         AppScreen.Hunt.name -> "Hunt Screen" //FIXME Non so cosa mettere qua, potrei pure togliere il titolo
+        AppScreen.ARScreen.name -> "AR"
         else -> AppScreen.Map.name
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
-    Scaffold(
-        snackbarHost = {
-            SnackbarHost(snackbarHostState)
-        },
-        topBar = {
-            TopAppBarFunction(
-                currentScreen = currentScreen,
+    Scaffold(snackbarHost = {
+        SnackbarHost(snackbarHostState)
+    }, topBar = {
+        if (currentRoute?.contains(AppScreen.ARScreen.name) == true || currentRoute?.contains(AppScreen.Hunt.name)==true ) null
+        else {
+            TopAppBarFunction(currentScreen = currentScreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() }
-            )
-        },
-        bottomBar = {
-            BottomBar(
-                onMapClick = { navController.navigate(AppScreen.Map.name) },
-                onMyCollectionClick = { navController.navigate(AppScreen.Collection.name) }
-            )
+                navigateUp = { navController.navigateUp() })
         }
-    ) { innerPadding ->
-        NavigationGraph(navController, innerPadding)
+    }, bottomBar = {
+        if (currentRoute?.contains(AppScreen.ARScreen.name) == true || currentRoute?.contains(AppScreen.Hunt.name)==true ) null
+        else {
+            BottomBar(onMapClick = { navController.navigate(AppScreen.Map.name) },
+                onMyCollectionClick = { navController.navigate(AppScreen.Collection.name) })
+        }
+    }) { innerPadding ->
+        NavigationGraph(
+            navController, innerPadding, engine, modelLoader, cameraNode, centerNode
+        )
     }
 
 }
@@ -194,7 +201,12 @@ fun Navigator(
 fun NavigationGraph(
     navController: NavHostController,
     innerPadding: PaddingValues,
-) {
+    engine: Engine,
+    modelLoader: ModelLoader,
+    cameraNode: CameraNode,
+    centerNode: Node,
+
+    ) {
 
     NavHost(
         navController = navController,
@@ -205,15 +217,33 @@ fun NavigationGraph(
             val introViewModel = hiltViewModel<IntroViewModel>()
             MappaScreen(navController, introViewModel)
         }
-        composable(AppScreen.Room.name) {
-            StanzaScreen(navController)
+        composable("${AppScreen.Room.name}/{roomName}",
+            arguments = listOf(navArgument("roomName") { type = NavType.StringType })) {
+            val roomViewModel = hiltViewModel<RoomViewModel>()
+            RoomScreen(
+                navController,
+                roomViewModel,
+                it.arguments?.getString("roomName") ?: "",
+                engine,
+                modelLoader,
+                cameraNode,
+                centerNode
+            )
         }
         composable(AppScreen.Collection.name) {
             val collectionViewModel = hiltViewModel<MyCollectionViewModel>()
-            MyCollectionScreen(navController, collectionViewModel)
+            MyCollectionScreen(
+                navController, collectionViewModel, engine, modelLoader, cameraNode, centerNode
+            )
         }
-        composable(AppScreen.Hunt.name) {
-            CacciaScreen(navController)
+        composable("${AppScreen.Hunt.name}/{cardId}",
+            arguments = listOf(navArgument("cardId") { type = NavType.IntType })) {
+            val captureViewModel = hiltViewModel<CaptureViewModel>()
+            CaptureScreen(navController, captureViewModel, it.arguments?.getInt("cardId") ?: -1)
+        }
+        composable("${AppScreen.ARScreen.name}/{cardName}",
+            arguments = listOf(navArgument("cardName") { type = NavType.StringType })) {
+            ARScene(navController)
         }
     }
 }

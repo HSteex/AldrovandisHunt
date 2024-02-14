@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,64 +24,51 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.aldrovandishunt.R
-import com.example.aldrovandishunt.data.database.Carte
-
-enum class Rarity {
-    UNCOMMON,
-    RARE,
-    EPIC,
-    LEGENDARY
-}
+import com.example.aldrovandishunt.data.database.Card
+import com.example.aldrovandishunt.data.database.Rarity
 
 @Composable
 fun Card(
-    card: Carte,
+    card: Card,
     cardWidth: Dp,
     onCardClick: () -> Unit = {},
 
     ) {
-    var backgroundColor = when (card.rarita) {
+    var backgroundColor = when (card.rarity) {
         Rarity.UNCOMMON -> Brush.verticalGradient(
-            0.0f to Color(0xFF90DD90),
-            1.0f to Color(0xFF229940)
+            0.0f to Color(0xFF90DD90), 1.0f to Color(0xFF229940)
         )
 
         Rarity.RARE -> Brush.verticalGradient(
-            0.0f to Color(0xFF6E91E9),
-            1.0f to Color(0xFF3A5BE9)
+            0.0f to Color(0xFF6E91E9), 1.0f to Color(0xFF3A5BE9)
         )
 
         Rarity.EPIC -> Brush.verticalGradient(
-            0.0f to Color(0xFFDB83D6),
-            1.0f to Color(0xFFA259B6)
+            0.0f to Color(0xFFDB83D6), 1.0f to Color(0xFFA259B6)
         )
 
         Rarity.LEGENDARY -> Brush.verticalGradient(
-            0.0f to Color(0xFFCEAB76),
-            1.0f to Color(0xFFE6A636)
+            0.0f to Color(0xFFCEAB76), 1.0f to Color(0xFFE6A636)
         )
     }
 
 
-    Box(
-        modifier = Modifier
-            .width(cardWidth)
-            .shadow(
-                elevation = 8.dp, shape = RoundedCornerShape(8.dp)
-            )
-            .background(brush = backgroundColor)
-            .clickable { onCardClick() }
+    Box(modifier = Modifier
+        .width(cardWidth)
+        .shadow(
+            elevation = 8.dp, shape = RoundedCornerShape(8.dp)
+        )
+        .background(brush = backgroundColor)
+        .clickable { onCardClick() }
 
     ) {
         Column(
@@ -89,7 +78,7 @@ fun Card(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = card.nome,
+                text = if (card.isUnlocked) card.name else "???",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Left,
                 style = TextStyle(
@@ -99,24 +88,46 @@ fun Card(
                 )
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Image(
-                painter = painterResource(id = R.drawable.cardtest_delete),
-                contentDescription = "Image of ${card.nome}",
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(color = Color.White)
-                    .width(cardWidth-4.dp)
-                    .height(cardWidth-8.dp),
-                contentScale = ContentScale.Crop
-            )
+            if (card.isUnlocked) {
+                Image(
+                    painter = painterResource(id = R.drawable.cardtest_delete),
+                    contentDescription = "Image of ${card.name}",
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(color = Color.White)
+                        .width(cardWidth - 4.dp)
+                        .height(cardWidth - 8.dp),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(color = Color.White)
+                        .width(cardWidth - 4.dp)
+                        .height(cardWidth - 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "?",
+                        style = TextStyle(
+                            fontSize = 52.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black,
+                        )
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(4.dp))
-            RarityBadge(rarity = card.rarita)
-
+            RarityBadge(rarity = card.rarity)
         }
 
 
     }
+
+
 }
+
 
 @Composable
 fun RarityBadge(rarity: Rarity) {
@@ -152,10 +163,8 @@ fun RarityBadge(rarity: Rarity) {
                 .padding(4.dp)
                 .fillMaxWidth(),
             textAlign = TextAlign.Center,
-            style= TextStyle(
-                fontWeight = FontWeight.Bold,
-                color = textColor,
-                shadow = Shadow(
+            style = TextStyle(
+                fontWeight = FontWeight.Bold, color = textColor, shadow = Shadow(
                     color = textColor,
                     blurRadius = 1f,
                 )

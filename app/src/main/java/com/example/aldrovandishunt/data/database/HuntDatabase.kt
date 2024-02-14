@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [Beacon::class, Carte::class, Stanze::class], version = 1, exportSchema = false)
+@Database(entities = [Beacon::class, Card::class, Rooms::class, CaptureHint::class], version = 8, exportSchema = true)
 abstract class HuntDatabase : RoomDatabase(){
     abstract fun DatabaseDao(): DatabaseDao
 
@@ -15,10 +17,12 @@ abstract class HuntDatabase : RoomDatabase(){
         fun getDatabase(context: Context): HuntDatabase{
             return Instance ?: synchronized(this){
                 Room.databaseBuilder(context, HuntDatabase::class.java, "hunt_database")
-                    .fallbackToDestructiveMigration()
+                    .createFromAsset("database/aldrovandisHunt.db")
+                    //.fallbackToDestructiveMigration()
                     .build()
                     .also { Instance = it }
             }
         }
+
     }
 }

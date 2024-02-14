@@ -1,21 +1,18 @@
 package com.example.aldrovandishunt.ui.myCollection
 
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.aldrovandishunt.data.database.Carte
+import com.example.aldrovandishunt.data.database.Card
 import com.example.aldrovandishunt.data.database.HuntRepository
+import com.example.aldrovandishunt.data.database.Rarity
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,36 +20,51 @@ import javax.inject.Inject
 class MyCollectionViewModel @Inject constructor(
     private val huntRepository: HuntRepository
 ) : ViewModel() {
-    private val _unlockedCardsFlow = huntRepository.getUnlockedCards()
-    var unlockedCards: List<Carte> = listOf()
+
+    private val _unlockedCardsFlow: Flow<List<Card>> = huntRepository.getUnlockedCards()
+    private val _unlockedCardsUiState: MutableStateFlow<CardsUiState> =
+        MutableStateFlow(CardsUiState())
+    val unlockedCardsUiState: StateFlow<CardsUiState> = _unlockedCardsUiState.asStateFlow()
+
+    var isARScreenOpen = mutableStateOf(false)
         private set
 
-
-    //FIXME Utilizzatao solo per testare le card
-    val cardList: List<Carte> = listOf(
-        Carte(0, "T-Rex", "descrizione", Rarity.UNCOMMON, "Boh", true),
-        Carte(0, "Velociraptor", "descrizione", Rarity.RARE, "Boh", true),
-        Carte(0, "Stegosauros", "descrizione", Rarity.EPIC, "Boh", true),
-    )
-
-
-    init {
-        viewModelScope.launch {
-            _unlockedCardsFlow.collect { unlockedCards = it }
-        }
-    }
-
-    private var _bottomSheetUiState : MutableStateFlow<BottomSheetState> = MutableStateFlow(
+    private var _bottomSheetUiState: MutableStateFlow<BottomSheetState> = MutableStateFlow(
         BottomSheetState()
     )
     val bottomSheetUiState: StateFlow<BottomSheetState> = _bottomSheetUiState.asStateFlow()
 
+    //METHODS
+    init {
+        viewModelScope.launch {
+            _unlockedCardsFlow.collect { cards ->
+                _unlockedCardsUiState.value =
+                    _unlockedCardsUiState.value.copy(unlockedCards = cards)
+                Log.v("MyCollectionViewModel", "init")
+            }
+        }
+    }
 
-    fun onCardClicked(card: Carte) {
+    fun onCardClicked(card: Card) {
         _bottomSheetUiState.value = _bottomSheetUiState.value.copy(
             isBottomSheetOpen = true,
             card = card
         )
+    }
+
+    fun onARClick() {
+        _bottomSheetUiState.value = _bottomSheetUiState.value.copy(
+            isBottomSheetOpen = false,
+        )
+        isARScreenOpen.value = true
+    }
+
+
+    fun onARBackClick() {
+        _bottomSheetUiState.value = _bottomSheetUiState.value.copy(
+            isBottomSheetOpen = true,
+        )
+        isARScreenOpen.value = false
     }
 
     fun closeBottomSheet() {
@@ -62,8 +74,13 @@ class MyCollectionViewModel @Inject constructor(
         )
     }
 
+    //DATA CLASSES
+    data class CardsUiState(
+        val unlockedCards: List<Card> = listOf(),
+    )
+
     data class BottomSheetState(
         val isBottomSheetOpen: Boolean = false,
-        val card: Carte? = null
+        val card: Card? = null
     )
 }
