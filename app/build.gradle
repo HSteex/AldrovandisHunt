@@ -109,10 +109,12 @@ dependencies {
     api "com.google.android.filament:gltfio-android:$filament_version"
     api "com.google.android.filament:filament-utils-android:$filament_version"
 
-
-
     //Sceneview AR edition
     implementation 'io.github.sceneview:arsceneview:2.0.3'
+
+    //Less useful libraries
+    //Konfetti
+    implementation 'nl.dionsegijn:konfetti-compose:2.0.4'
 }
 
 //class RoomSchemaArgProvider implements CommandLineArgumentProvider {

@@ -8,6 +8,8 @@ class HuntRepository (private val huntDao: DatabaseDao){
     fun getRoom(uid: String) : String = huntDao.getRoom(uid)
     fun getUnlockedCards() : Flow<List<Card>> = huntDao.getUnlockedCards()
 
-    fun getHint(cardId: Int) : Flow<List<String>> = huntDao.getHint(cardId)
+    fun getHint(cardId: Int) : Flow<List<CaptureHint>> = huntDao.getHint(cardId)
+
+    fun getCard(cardId: Int) : Flow<Card> = huntDao.getCard(cardId)
 
 }

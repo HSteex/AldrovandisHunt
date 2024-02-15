@@ -236,10 +236,10 @@ fun NavigationGraph(
                 navController, collectionViewModel, engine, modelLoader, cameraNode, centerNode
             )
         }
-        composable("${AppScreen.Hunt.name}/{cardId}",
-            arguments = listOf(navArgument("cardId") { type = NavType.IntType })) {
+        composable("${AppScreen.Hunt.name}/{cardId}/{cardName}",
+            arguments = listOf(navArgument("cardId") { type = NavType.IntType }, navArgument("cardName") { type = NavType.StringType })) {
             val captureViewModel = hiltViewModel<CaptureViewModel>()
-            CaptureScreen(navController, captureViewModel, it.arguments?.getInt("cardId") ?: -1)
+            CaptureScreen(navController, captureViewModel, it.arguments?.getInt("cardId") ?: -1, it.arguments?.getString("cardName") ?: "")
         }
         composable("${AppScreen.ARScreen.name}/{cardName}",
             arguments = listOf(navArgument("cardName") { type = NavType.StringType })) {

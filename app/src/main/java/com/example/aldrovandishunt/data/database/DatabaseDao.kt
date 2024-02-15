@@ -18,8 +18,12 @@ interface DatabaseDao {
     @Query("SELECT * FROM Card WHERE isUnlocked=1")
     fun getUnlockedCards(): Flow<List<Card>>
 
-    @Query("SELECT CaptureHint.hint FROM CaptureHint WHERE cardId=:id")
-    fun getHint(id: Int): Flow<List<String>>
+    @Query("SELECT * FROM CaptureHint WHERE cardId=:id ORDER BY cost ASC")
+    fun getHint(id: Int): Flow<List<CaptureHint>>
+
+    @Query("SELECT * FROM Card WHERE ID=:id")
+    fun getCard(id: Int): Flow<Card>
+
 
 
 }

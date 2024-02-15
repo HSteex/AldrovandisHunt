@@ -18,5 +18,6 @@ data class CaptureHint(
     @PrimaryKey(autoGenerate = true)
     val ID: Int = 0,
     val cardId: Int,
-    val hint: String
+    val hint: String,
+    val cost: Int=0
 )

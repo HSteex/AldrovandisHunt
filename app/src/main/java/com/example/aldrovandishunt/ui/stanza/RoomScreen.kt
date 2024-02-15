@@ -69,7 +69,7 @@ fun RoomScreen(
         if (roomUiState.cards.isNotEmpty()) {
             CardGrid(cardList = roomUiState.cards, onCardClick = {
                 if (it.isUnlocked) roomViewModel.onUnlockedCardClicked(it)
-                else navController.navigate("${AppScreen.Hunt.name}/${it.ID}")
+                else navController.navigate("${AppScreen.Hunt.name}/${it.ID}/${it.name}")
             })
         }
     }
