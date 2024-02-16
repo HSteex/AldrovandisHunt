@@ -19,5 +19,6 @@ data class CaptureHint(
     val ID: Int = 0,
     val cardId: Int,
     val hint: String,
-    val cost: Int=0
+    val cost: Int=0,
+    val isUnlocked: Boolean=false,
 )

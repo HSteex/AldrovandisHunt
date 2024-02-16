@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 
+
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -47,6 +48,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -89,36 +91,45 @@ fun CaptureScreen(
 
 
     if (!captureUiState.value.unlocked) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Box(modifier = Modifier.weight(0.7f)) {
-                ImageRecognition(
-                    cardName = cardName,
-                    onSuccess = { viewModel.onCapture() },
+        if (captureUiState.value.hintList.isNotEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Box(modifier = Modifier.weight(0.7f)) {
+                    ImageRecognition(
+                        cardName = cardName,
+                        onSuccess = { viewModel.onCapture() },
+                    )
+                }
+                CaptureHintRow(
+                    hintList = captureUiState.value.hintList,
+                    hintSelected = captureUiState.value.hintSelected,
+                    onHintSelected = { viewModel.onHintSelected(it) },
+                    hintCoins = captureUiState.value.hintCoins,
+                    insufficientCoins = captureUiState.value.insufficientCoins,
+                    onBuyHint = { viewModel.buyHint() }
                 )
             }
-            CaptureHintRow(hint = captureUiState.value.hint)
-        }
-        Box(modifier = Modifier.padding(8.dp)) {
-            IconButton(
-                onClick = { navController.popBackStack() },
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .padding(8.dp)
-                    .background(primaryOrange)
-            )
-            {
-
-                Icon(
-                    modifier = Modifier.fillMaxSize(),
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    tint = Color.White,
-                    contentDescription = "Back"
+            Box(modifier = Modifier.padding(8.dp)) {
+                IconButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(24.dp))
+                        .padding(8.dp)
+                        .background(primaryOrange)
                 )
+                {
 
+                    Icon(
+                        modifier = Modifier.fillMaxSize(),
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        tint = Color.White,
+                        contentDescription = "Back"
+                    )
+
+                }
             }
         }
     } else {
@@ -132,7 +143,12 @@ fun CaptureScreen(
 
 @Composable
 fun CaptureHintRow(
-    hint: String,
+    hintList: List<CaptureHint>,
+    hintSelected: Int,
+    onHintSelected: (Int) -> Unit,
+    hintCoins: Int,
+    insufficientCoins: Boolean,
+    onBuyHint: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -149,24 +165,48 @@ fun CaptureHintRow(
                 .offset(x = 16.dp)
 
         ) {
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(primaryOrange)
-                    .fillMaxWidth()
 
-            ) {
-                TypewriterTextEffect(text = hint) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(primaryOrange)
+                        .fillMaxWidth()
+                        .padding(4.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
                     Text(
-                        text = it,
-                        style = TextStyle(fontSize = 16.sp, color = Color.Black),
-                        modifier = Modifier
-                            .height(300.dp)
-                            //.wrapContentSize(align = Alignment.CenterStart)
-                            .padding(16.dp),
+                        text = "Hint",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                        ),
+                        textAlign = TextAlign.Center
                     )
                 }
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(modifier = Modifier.fillMaxWidth()) {
 
+                }
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(primaryOrange)
+                        .fillMaxWidth()
+
+                ) {
+                    TypewriterTextEffect(text = hintList[hintSelected].hint) {
+                        Text(
+                            text = it,
+                            style = TextStyle(fontSize = 16.sp, color = Color.Black),
+                            modifier = Modifier
+                                .height(200.dp)
+                                //.wrapContentSize(align = Alignment.CenterStart)
+                                .padding(16.dp),
+                        )
+                    }
+
+                }
             }
         }
         Box(
@@ -268,7 +308,7 @@ fun CardUnlockScreen(
         return listOf(
             party,
             party.copy(
-                angle = Angle.LEFT+50, // flip angle from right to left
+                angle = Angle.LEFT + 50, // flip angle from right to left
                 position = Position.Relative(1.0, 0.4)
             ),
         )

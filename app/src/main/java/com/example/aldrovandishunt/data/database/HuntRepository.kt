@@ -4,6 +4,8 @@ import kotlinx.coroutines.flow.Flow
 
 class HuntRepository (private val huntDao: DatabaseDao){
     suspend fun unlockCard(cardId: Int) = huntDao.unlockCard(cardId)
+
+    suspend fun unlockHint(hintId: Int) = huntDao.unlockHint(hintId)
     fun getCards(room: String) : Flow<List<Card>> = huntDao.getCards(room)
     fun getRoom(uid: String) : String = huntDao.getRoom(uid)
     fun getUnlockedCards() : Flow<List<Card>> = huntDao.getUnlockedCards()

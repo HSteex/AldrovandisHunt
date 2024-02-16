@@ -2,12 +2,16 @@ package com.example.aldrovandishunt.data.database
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface DatabaseDao {
     @Query("UPDATE Card SET isUnlocked=1 WHERE ID=:id")
     suspend fun unlockCard(id: Int)
+
+    @Query("UPDATE CaptureHint SET isUnlocked=1 WHERE ID=:id")
+    suspend fun unlockHint(id: Int)
 
     @Query("SELECT * FROM Card WHERE room=:stanza")
     fun getCards(stanza: String): Flow<List<Card>>

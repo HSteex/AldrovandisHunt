@@ -35,7 +35,7 @@ class SettingsRepository (private val context: Context){
 
     suspend fun getHintCoins(): Int{
         val settings = context.dataStore.data.first()
-        return settings[HINT_COINS] ?: -1
+        return settings[HINT_COINS] ?: 3
     }
 
 

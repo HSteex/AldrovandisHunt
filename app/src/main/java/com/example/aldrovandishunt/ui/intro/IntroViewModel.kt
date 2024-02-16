@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class IntroViewModel @Inject constructor(
-    private val SettingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     private var _intro = mutableStateOf(false)
@@ -102,8 +102,8 @@ class IntroViewModel @Inject constructor(
     fun endIntro() {
         _intro.value=false
         viewModelScope.launch {
-            SettingsRepository.setIntro(false)
-            Log.v("DataStore", SettingsRepository.getIntro().toString())
+            settingsRepository.setIntro(false)
+            Log.v("DataStore", settingsRepository.getIntro().toString())
         }
     }
 
@@ -117,7 +117,7 @@ class IntroViewModel @Inject constructor(
 
     fun getIntro() {
         viewModelScope.launch {
-            intro.value=SettingsRepository.getIntro()
+            intro.value=settingsRepository.getIntro()
         }
     }
 }

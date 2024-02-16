@@ -28,6 +28,11 @@ fun ImageRecognition (
                     context.assets.open("augmentedImage/$cardName.jpg")
                         .use(BitmapFactory::decodeStream)
                 )
+                config.addAugmentedImage(
+                    session, cardName,
+                    context.assets.open("augmentedImage/T-Rex2.jpg")
+                        .use(BitmapFactory::decodeStream)
+                )
             }
             onSessionUpdated = { session, frame ->
                 frame.getUpdatedAugmentedImages().forEach { augmentedImage ->
