@@ -68,4 +68,6 @@ val seed = Color(0xFFFFA500)
 //Custom Colors
 val bluePermission = Color(0xFF2165C9)
 val primaryOrange= Color(0xFFFFB95C)
+val notSelectedOrange= Color(0xFFFFDDB7)
+val lightRed= Color(0xFFFF816D)
 

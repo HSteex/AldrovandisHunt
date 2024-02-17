@@ -20,36 +20,42 @@ class CaptureViewModel @Inject constructor(
     private val huntRepository: HuntRepository,
     private val savedStateHandle: SavedStateHandle,
     private val settingsRepository: SettingsRepository
-) : ViewModel(){
+) : ViewModel() {
 
-    private val cardId= savedStateHandle.get<Int>("cardId") ?: 0
+    private val cardId = savedStateHandle.get<Int>("cardId") ?: 0
     private val hintFlow = huntRepository.getHint(cardId)
     private val CAPTURE_REWARD: Int = 2
 
 
-    private var _captureUiState: MutableStateFlow<CaptureUiState> = MutableStateFlow(CaptureUiState())
+    private var _captureUiState: MutableStateFlow<CaptureUiState> =
+        MutableStateFlow(CaptureUiState())
     val captureUiState: StateFlow<CaptureUiState> = _captureUiState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            hintFlow.collect{ h->
+            hintFlow.collect { h ->
                 _captureUiState.value = _captureUiState.value.copy(hint = h[0], hintList = h)
             }
-            huntRepository.getCard(cardId).collect{c->
-                _captureUiState.value = _captureUiState.value.copy(card = c.copy(isUnlocked = true))
+        }
+        viewModelScope.launch {
+            huntRepository.getCard(cardId).collect { c ->
+                _captureUiState.value =
+                    _captureUiState.value.copy(card = c.copy(isUnlocked = true))
             }
-            _captureUiState.value = _captureUiState.value.copy(hintCoins = settingsRepository.getHintCoins())
+        }
+        viewModelScope.launch {
+            _captureUiState.value =
+                _captureUiState.value.copy(hintCoins = settingsRepository.getHintCoins())
         }
     }
 
 
-
     data class CaptureUiState(
-        val hint: CaptureHint = CaptureHint(0,0,"",0),
+        val hint: CaptureHint = CaptureHint(0, 0, "", 0),
         val hintSelected: Int = 0,
         val hintList: List<CaptureHint> = emptyList(),
-        val unlocked: Boolean=false,
-        val card: Card=Card(0,"","",Rarity.UNCOMMON,"",),
+        val unlocked: Boolean = false,
+        val card: Card = Card(0, "", "", Rarity.UNCOMMON, ""),
         val hintCoins: Int = 0,
         val insufficientCoins: Boolean = false
     )
@@ -58,26 +64,31 @@ class CaptureViewModel @Inject constructor(
         _captureUiState.value = _captureUiState.value.copy(unlocked = true)
         viewModelScope.launch {
             huntRepository.unlockCard(cardId)
-            settingsRepository.setHintCoins(_captureUiState.value.hintCoins+CAPTURE_REWARD)
+            settingsRepository.setHintCoins(_captureUiState.value.hintCoins + CAPTURE_REWARD)
         }
     }
 
-    fun onHintSelected(hintNumber: Int){
-        _captureUiState.value = _captureUiState.value.copy(hintSelected = hintNumber, hint = _captureUiState.value.hintList[hintNumber], insufficientCoins = false)
+    fun onHintSelected(hintNumber: Int) {
+        _captureUiState.value = _captureUiState.value.copy(
+            hintSelected = hintNumber,
+            hint = _captureUiState.value.hintList[hintNumber],
+            insufficientCoins = false
+        )
     }
 
-    fun buyHint(){
-        if (_captureUiState.value.hintCoins<_captureUiState.value.hint.cost) {
+    fun buyHint() {
+        if (_captureUiState.value.hintCoins < _captureUiState.value.hint.cost) {
             _captureUiState.value = _captureUiState.value.copy(insufficientCoins = true)
             return
         }
         viewModelScope.launch {
-            settingsRepository.setHintCoins(_captureUiState.value.hintCoins-_captureUiState.value.hint.cost)
+            settingsRepository.setHintCoins(_captureUiState.value.hintCoins - _captureUiState.value.hint.cost)
             huntRepository.unlockHint(_captureUiState.value.hint.ID)
         }
         _captureUiState.value = _captureUiState.value.copy(
-            hintCoins = _captureUiState.value.hintCoins-_captureUiState.value.hint.cost,
-            hint = _captureUiState.value.hint.copy(isUnlocked = true))
+            hintCoins = _captureUiState.value.hintCoins - _captureUiState.value.hint.cost,
+            hint = _captureUiState.value.hint.copy(isUnlocked = true)
+        )
     }
 
 

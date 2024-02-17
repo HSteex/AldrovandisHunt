@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,6 +62,8 @@ import com.example.aldrovandishunt.data.database.Card
 import com.example.aldrovandishunt.ui.intro.AnimatedTalkingMan
 import com.example.aldrovandishunt.ui.intro.TypewriterTextEffect
 import com.example.aldrovandishunt.ui.myCollection.Card
+import com.example.aldrovandishunt.ui.theme.lightRed
+import com.example.aldrovandishunt.ui.theme.notSelectedOrange
 import com.example.aldrovandishunt.ui.theme.primaryOrange
 import com.google.ar.core.AugmentedImage
 import com.google.ar.core.Config
@@ -153,11 +157,8 @@ fun CaptureHintRow(
     Row(
         modifier = Modifier
             .fillMaxWidth(),
-
         verticalAlignment = Alignment.CenterVertically,
-
-        ) {
-
+    ) {
         Box(
             modifier = Modifier
                 .weight(0.8f)
@@ -165,7 +166,6 @@ fun CaptureHintRow(
                 .offset(x = 16.dp)
 
         ) {
-
             Column(modifier = Modifier.fillMaxWidth()) {
                 Box(
                     modifier = Modifier
@@ -176,7 +176,7 @@ fun CaptureHintRow(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "Hint",
+                        text = "Tokens: $hintCoins",
                         style = TextStyle(
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
@@ -186,6 +186,32 @@ fun CaptureHintRow(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(modifier = Modifier.fillMaxWidth()) {
+                    hintList.forEachIndexed { index, captureHint ->
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(4.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(
+                                    if (index == hintSelected) primaryOrange else if (!captureHint.isUnlocked) lightRed else notSelectedOrange
+                                )
+                                .fillMaxWidth()
+                                .clickable { onHintSelected(index)
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Hint ${index + 1}",
+                                style = TextStyle(
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black
+                                ),
+                                textAlign = TextAlign.Center,
+                                modifier=Modifier.padding(8.dp)
+                            )
+                        }
+                    }
 
                 }
                 Box(
@@ -195,17 +221,53 @@ fun CaptureHintRow(
                         .fillMaxWidth()
 
                 ) {
-                    TypewriterTextEffect(text = hintList[hintSelected].hint) {
-                        Text(
-                            text = it,
-                            style = TextStyle(fontSize = 16.sp, color = Color.Black),
+                    if (hintList[hintSelected].isUnlocked) {
+                        TypewriterTextEffect(text = hintList[hintSelected].hint) {
+                            Text(
+                                text = it,
+                                style = TextStyle(fontSize = 16.sp, color = Color.Black),
+                                modifier = Modifier
+                                    .height(200.dp)
+                                    //.wrapContentSize(align = Alignment.CenterStart)
+                                    .padding(16.dp),
+                            )
+                        }
+                    } else {
+                        Column(
                             modifier = Modifier
                                 .height(200.dp)
-                                //.wrapContentSize(align = Alignment.CenterStart)
-                                .padding(16.dp),
-                        )
-                    }
+                                .fillMaxWidth(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    "Hint cost: ${hintList[hintSelected].cost} ",
+                                    style = TextStyle(fontSize = 16.sp)
+                                )
+                                //TODO Add coin icon
 
+                            }
+
+
+                        }
+                        Button(onClick = { onBuyHint() }) {
+                            Text(text = "Buy hint")
+                            Icon(
+                                imageVector = Icons.Default.LockOpen,
+                                contentDescription = "Arrow forward"
+                            )
+                        }
+                        if (insufficientCoins) {
+                            Text(
+                                text = "Insufficient coins",
+                                style = TextStyle(fontSize = 16.sp, color = Color.Red)
+                            )
+                        }
+                    }
                 }
             }
         }
