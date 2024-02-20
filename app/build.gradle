@@ -93,17 +93,13 @@ dependencies {
     // Optional - Kotlin Extensions and Coroutines support for Room
     implementation "androidx.room:room-ktx:$room_version"
 
-    //gps
-    implementation 'com.google.android.gms:play-services-location:21.1.0'
-    //volley
-    implementation 'com.android.volley:volley:1.2.1'
-
+    //Coil
     implementation 'io.coil-kt:coil-compose:2.5.0'
 
-    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
-
+    //Permissions
     implementation "com.google.accompanist:accompanist-permissions:0.19.0"
 
+    //Filament
     def filament_version = '1.49.3'
     api "com.google.android.filament:filament-android:$filament_version"
     api "com.google.android.filament:gltfio-android:$filament_version"

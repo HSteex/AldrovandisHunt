@@ -10,8 +10,8 @@ import androidx.room.PrimaryKey
     foreignKeys = [
         ForeignKey(
             entity = Rooms::class,
-            parentColumns = ["name"],
-            childColumns = ["room"],
+            parentColumns = ["id"],
+            childColumns = ["roomId"],
             onDelete = ForeignKey.CASCADE
         )
     ]
@@ -19,5 +19,5 @@ import androidx.room.PrimaryKey
 data class Beacon (
     @PrimaryKey
     val UID: String,
-    val room: String
+    val roomId: Int
 )

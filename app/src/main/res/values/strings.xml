@@ -17,4 +17,6 @@
     <string name="AR3D_insufficient_light">Insufficient light</string>
     <string name="AR3D_excessive_motion">Excessive motion</string>
     <string name="AR3D_camera_in_use">Camera is used by another application</string>
+    <string name="cards_to_unlock">Cards to unlock</string>
+    <string name="cards_unlocked">Cards unlocked</string>
 </resources>

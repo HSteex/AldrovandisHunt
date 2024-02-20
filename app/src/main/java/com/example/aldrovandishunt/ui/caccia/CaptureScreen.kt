@@ -1,9 +1,6 @@
 package com.example.aldrovandishunt.ui.caccia
 
-import android.content.Context
-import android.graphics.BitmapFactory
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,18 +19,18 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -45,8 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -54,26 +50,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import com.example.aldrovandishunt.R
 import com.example.aldrovandishunt.data.database.CaptureHint
 import com.example.aldrovandishunt.data.database.Card
-import com.example.aldrovandishunt.ui.intro.AnimatedTalkingMan
 import com.example.aldrovandishunt.ui.intro.TypewriterTextEffect
 import com.example.aldrovandishunt.ui.myCollection.Card
+import com.example.aldrovandishunt.ui.theme.lightGreen
 import com.example.aldrovandishunt.ui.theme.lightRed
-import com.example.aldrovandishunt.ui.theme.notSelectedOrange
+import com.example.aldrovandishunt.ui.theme.selectedOrange
 import com.example.aldrovandishunt.ui.theme.primaryOrange
-import com.google.ar.core.AugmentedImage
-import com.google.ar.core.Config
-import com.google.ar.core.Session
-import io.github.sceneview.ar.ARScene
-import io.github.sceneview.ar.ARSceneView
-import io.github.sceneview.ar.arcore.addAugmentedImage
-import io.github.sceneview.ar.arcore.getUpdatedAugmentedImages
-import io.github.sceneview.ar.node.AugmentedImageNode
-import io.github.sceneview.node.ModelNode
 import kotlinx.coroutines.delay
 import nl.dionsegijn.konfetti.compose.KonfettiView
 import nl.dionsegijn.konfetti.core.Angle
@@ -112,7 +98,10 @@ fun CaptureScreen(
                     onHintSelected = { viewModel.onHintSelected(it) },
                     hintCoins = captureUiState.value.hintCoins,
                     insufficientCoins = captureUiState.value.insufficientCoins,
-                    onBuyHint = { viewModel.buyHint() }
+                    onBuyHint = { viewModel.buyHint() },
+                    startTalking = { viewModel.startTalking() },
+                    stopTalking = { viewModel.stopTalking() },
+                    talk = viewModel.startTalking.value,
                 )
             }
             Box(modifier = Modifier.padding(8.dp)) {
@@ -153,7 +142,11 @@ fun CaptureHintRow(
     hintCoins: Int,
     insufficientCoins: Boolean,
     onBuyHint: () -> Unit,
-) {
+    startTalking: () -> Unit = {},
+    stopTalking: () -> Unit = {},
+    talk: Boolean = false,
+
+    ) {
     Row(
         modifier = Modifier
             .fillMaxWidth(),
@@ -167,36 +160,20 @@ fun CaptureHintRow(
 
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(primaryOrange)
-                        .fillMaxWidth()
-                        .padding(4.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = "Tokens: $hintCoins",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                        ),
-                        textAlign = TextAlign.Center
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
+
                 Row(modifier = Modifier.fillMaxWidth()) {
                     hintList.forEachIndexed { index, captureHint ->
                         Box(
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(4.dp)
+                                .padding(vertical = 8.dp)
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(
-                                    if (index == hintSelected) primaryOrange else if (!captureHint.isUnlocked) lightRed else notSelectedOrange
+                                    if (index == hintSelected) selectedOrange else if (!captureHint.isUnlocked && captureHint.cost != 0) lightRed else primaryOrange
                                 )
                                 .fillMaxWidth()
-                                .clickable { onHintSelected(index)
+                                .clickable {
+                                    onHintSelected(index)
                                 },
                             contentAlignment = Alignment.Center
                         ) {
@@ -208,8 +185,11 @@ fun CaptureHintRow(
                                     color = Color.Black
                                 ),
                                 textAlign = TextAlign.Center,
-                                modifier=Modifier.padding(8.dp)
+                                modifier = Modifier.padding(8.dp)
                             )
+                        }
+                        if (index != hintList.size - 1) {
+                            Spacer(modifier = Modifier.width(8.dp))
                         }
                     }
 
@@ -221,8 +201,16 @@ fun CaptureHintRow(
                         .fillMaxWidth()
 
                 ) {
-                    if (hintList[hintSelected].isUnlocked) {
-                        TypewriterTextEffect(text = hintList[hintSelected].hint) {
+                    if (hintList[hintSelected].isUnlocked || hintList[hintSelected].cost == 0) {
+                        TypewriterTextEffect(
+                            text = hintList[hintSelected].hint,
+                            minDelayInMillis = 50,
+                            maxDelayInMillis = 51,
+                            onEffectCompleted = {
+                                stopTalking()
+                            },
+                        )
+                        {
                             Text(
                                 text = it,
                                 style = TextStyle(fontSize = 16.sp, color = Color.Black),
@@ -249,55 +237,70 @@ fun CaptureHintRow(
                                     style = TextStyle(fontSize = 16.sp)
                                 )
                                 //TODO Add coin icon
-
                             }
+                            Button(onClick = {
+                                onBuyHint()
+                            },
+                                colors= ButtonDefaults.buttonColors(containerColor = selectedOrange)) {
+                                Text(text = "Buy hint", modifier=Modifier.padding(horizontal = 8.dp), color=Color.Black)
 
+                                Icon(
+                                    imageVector = Icons.Default.LockOpen,
+                                    contentDescription = "Arrow forward",
+                                    tint=Color.Black
+                                )
+                            }
+                            if (insufficientCoins) {
+                                Text(
+                                    text = "Insufficient coins",
+                                    style = TextStyle(fontSize = 16.sp, color = Color.Red)
+                                )
+                            }
+                        }
 
-                        }
-                        Button(onClick = { onBuyHint() }) {
-                            Text(text = "Buy hint")
-                            Icon(
-                                imageVector = Icons.Default.LockOpen,
-                                contentDescription = "Arrow forward"
-                            )
-                        }
-                        if (insufficientCoins) {
-                            Text(
-                                text = "Insufficient coins",
-                                style = TextStyle(fontSize = 16.sp, color = Color.Red)
-                            )
-                        }
                     }
                 }
             }
         }
-        Box(
+        Column(
             modifier = Modifier
                 .weight(0.3f)
-                .align(Alignment.Bottom)
+                .align(Alignment.Bottom),
+            verticalArrangement = Arrangement.SpaceBetween,
+
         ) {
-            CroppedAnimatedTalkingMan(durationInSeconds = 3, 1)
+            Column (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp)){
+                Image(painter= painterResource(id = R.drawable.hint_svgrepo_com),
+                    contentDescription = "Hint token",
+                    modifier = Modifier.size(64.dp)
+                )
+                Text(
+                    text = "x $hintCoins",
+                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                )
+            }
+            Spacer(modifier = Modifier.height(32.dp))
+            CroppedAnimatedTalkingMan(talk)
         }
     }
 }
 
 @Composable
 fun CroppedAnimatedTalkingMan(
-    durationInSeconds: Int,
-    talk: Int,
+    talk: Boolean,
 ) {
     var showOpenMouth by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = talk) {
-        val endTime = System.currentTimeMillis() + durationInSeconds * 1000
-        while (System.currentTimeMillis() < endTime) {
+        while (talk) {
             showOpenMouth = Random.nextBoolean()
             delay(100) // Ritardo tra gli switch
         }
         showOpenMouth = false
     }
-
     if (showOpenMouth) {
         Image(
             painter = painterResource(id = R.drawable.aldrovandi_open_crop),
@@ -381,20 +384,6 @@ fun CardUnlockScreen(
 }
 
 
-@Preview
-@Composable
-fun CaptureHintPreview() {
-    CardUnlockScreen(
-        card = Card(
-            0,
-            "T-Rex",
-            "",
-            com.example.aldrovandishunt.data.database.Rarity.UNCOMMON,
-            "",
-            true
-        )
-    )
-}
 
 
 

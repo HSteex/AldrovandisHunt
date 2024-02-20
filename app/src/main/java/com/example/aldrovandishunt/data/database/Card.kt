@@ -16,7 +16,7 @@ enum class Rarity {
     foreignKeys = [
         ForeignKey(
             entity = Rooms::class,
-            parentColumns = ["name"],
+            parentColumns = ["id"],
             childColumns = ["room"],
             onDelete = ForeignKey.CASCADE
         )
@@ -28,7 +28,7 @@ data class Card(
     val name: String,
     val description: String,
     val rarity: Rarity,
-    val room: String,
+    val room: Int,
     val isUnlocked: Boolean = false,
 
     //TODO aggiungere in attesa dei contenuti

@@ -20,9 +20,9 @@ class RoomViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    val roomName: String = savedStateHandle.get<String>("roomName") ?: "Room"
+    val roomId: Int = savedStateHandle.get<Int>("roomId") ?: 0
 
-    val cardFlow = huntRepository.getCards(roomName)
+    val cardFlow = huntRepository.getCards(roomId)
 
     private var _bottomSheetUiState: MutableStateFlow<MyCollectionViewModel.BottomSheetState> = MutableStateFlow(
         MyCollectionViewModel.BottomSheetState()
@@ -35,7 +35,6 @@ class RoomViewModel @Inject constructor(
     val roomUiState: StateFlow<RoomUiState> = _roomUiState.asStateFlow()
 
     init {
-        Log.v("DELETE", roomName)
         viewModelScope.launch {
             cardFlow.collect { cards ->
                 _roomUiState.value = _roomUiState.value.copy(cards = cards)

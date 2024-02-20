@@ -71,8 +71,9 @@ const val kMaxModelInstances=1
 @Composable
 fun ARScene(
     navController: NavController,
+    cardName: String
 ){
-    kModelFile= "models/T-RexAR.glb"
+    kModelFile= "models/${cardName}.glb"
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {

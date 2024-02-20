@@ -132,13 +132,7 @@ fun IntroScreen(
                                     onClick = {
                                         cameraPermissionState.launchPermissionRequest()
                                         if(cameraPermissionState.hasPermission){
-                                            locationPermissionState.launchPermissionRequest()
-                                            if(locationPermissionState.hasPermission){
-                                                bluetoothPermissionState.launchPermissionRequest()
-                                                if(bluetoothPermissionState.hasPermission){
                                                     viewModel.acceptedPermissions()
-                                                }
-                                            }
                                         }
                                     },
                                     colors = buttonColors(

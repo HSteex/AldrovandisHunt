@@ -42,6 +42,9 @@ import io.github.sceneview.node.CameraNode
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
 import io.github.sceneview.rememberCameraNode
+import io.github.sceneview.rememberEngine
+import io.github.sceneview.rememberEnvironmentLoader
+import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNode
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -50,10 +53,8 @@ fun ItemOverlayScreen(
     onDismissRequest: () -> Unit,
     card: Card? = null,
     onARClick: () -> Unit,
-    itemOverlayOpened: Boolean,
     engine: Engine,
     modelLoader: ModelLoader,
-    cameraNode: CameraNode,
     centerNode: Node,
 ) {
     val height = LocalConfiguration.current.screenHeightDp.dp
@@ -91,7 +92,7 @@ fun ItemOverlayScreen(
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column (modifier=Modifier.weight(1f)){
+                Column(modifier = Modifier.weight(1f)) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -100,28 +101,33 @@ fun ItemOverlayScreen(
                             .background(color = Color.Black)
 
                     ) {
-                        if (itemOverlayOpened) {
-                            val cameraNode = rememberCameraNode(engine).apply {
-                                position = Position(z = 1.5f)
-                            }
-                            Scene(modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp),
-                                engine = engine,
-                                modelLoader = modelLoader,
-                                cameraNode = cameraNode,
-                                childNodes = listOf(centerNode, rememberNode {
-                                    ModelNode(
-                                        modelInstance = modelLoader.createModelInstance(
-                                            assetFileLocation = "models/${card.name}AR.glb"
-                                        ), scaleToUnits = 1.5f
-                                    )
-                                }),
-                                onFrame = {
-                                    cameraNode.lookAt(centerNode)
-                                })
+
+                        val cameraNode = rememberCameraNode(engine).apply {
+                            position = Position(z = 2f, y = 0f, x = 0f)
                         }
+                        val environmentLoader = rememberEnvironmentLoader(engine)
+                        Scene(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                            engine = engine,
+                            modelLoader = modelLoader,
+                            cameraNode = cameraNode,
+                            childNodes = listOf(centerNode, rememberNode {
+                                ModelNode(
+                                    modelInstance = modelLoader.createModelInstance(
+                                        assetFileLocation = "models/${card.name}.glb"
+                                    ), scaleToUnits = 1.5f
+                                )
+                            }),
+                            environment = environmentLoader.createHDREnvironment(
+                                assetFileLocation = "environments/sky_2k.hdr"
+                            )!!,
+                            onFrame = {
+                                cameraNode.lookAt(centerNode)
+                            })
+
                     }
+
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()

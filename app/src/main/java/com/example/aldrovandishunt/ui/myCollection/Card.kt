@@ -1,5 +1,6 @@
 package com.example.aldrovandishunt.ui.myCollection
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,14 +25,17 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.aldrovandishunt.R
 import com.example.aldrovandishunt.data.database.Card
 import com.example.aldrovandishunt.data.database.Rarity
@@ -60,6 +64,8 @@ fun Card(
             0.0f to Color(0xFFCEAB76), 1.0f to Color(0xFFE6A636)
         )
     }
+    
+
 
 
     Box(modifier = Modifier
@@ -85,12 +91,14 @@ fun Card(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
-                )
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.height(4.dp))
             if (card.isUnlocked) {
-                Image(
-                    painter = painterResource(id = R.drawable.cardtest_delete),
+                AsyncImage(
+                    model ="file:///android_asset/card/${card.name}.jpg",
                     contentDescription = "Image of ${card.name}",
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))

@@ -60,10 +60,10 @@ fun MyCollectionScreen(
                     launchSingleTop = true
                 }
             },
-            itemOverlayOpened = bottomSheetState.isBottomSheetOpen,
+
             engine = engine,
             modelLoader = modelLoader,
-            cameraNode = cameraNode,
+
             centerNode = centerNode
         )
     }

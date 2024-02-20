@@ -47,7 +47,8 @@ import com.example.aldrovandishunt.ui.caccia.CaptureViewModel
 import com.example.aldrovandishunt.ui.myCollection.MyCollectionScreen
 import com.example.aldrovandishunt.ui.intro.IntroViewModel
 import com.example.aldrovandishunt.ui.itemOverlay.ARScene
-import com.example.aldrovandishunt.ui.mappa.MappaScreen
+import com.example.aldrovandishunt.ui.mappa.MapScreen
+import com.example.aldrovandishunt.ui.mappa.MapViewModel
 import com.example.aldrovandishunt.ui.stanza.RoomViewModel
 import com.example.aldrovandishunt.ui.myCollection.MyCollectionViewModel
 import com.example.aldrovandishunt.ui.stanza.RoomScreen
@@ -215,10 +216,11 @@ fun NavigationGraph(
     ) {
         composable(AppScreen.Map.name) {
             val introViewModel = hiltViewModel<IntroViewModel>()
-            MappaScreen(navController, introViewModel)
+            val mapViewModel = hiltViewModel<MapViewModel>()
+            MapScreen(navController, introViewModel, mapViewModel)
         }
-        composable("${AppScreen.Room.name}/{roomName}",
-            arguments = listOf(navArgument("roomName") { type = NavType.StringType })) {
+        composable("${AppScreen.Room.name}/{roomId}",
+            arguments = listOf(navArgument("roomId") { type = NavType.IntType })) {
             val roomViewModel = hiltViewModel<RoomViewModel>()
             RoomScreen(
                 navController,
@@ -243,7 +245,7 @@ fun NavigationGraph(
         }
         composable("${AppScreen.ARScreen.name}/{cardName}",
             arguments = listOf(navArgument("cardName") { type = NavType.StringType })) {
-            ARScene(navController)
+            ARScene(navController, it.arguments?.getString("cardName") ?: "")
         }
     }
 }

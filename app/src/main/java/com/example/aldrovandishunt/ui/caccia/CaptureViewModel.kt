@@ -1,5 +1,6 @@
 package com.example.aldrovandishunt.ui.caccia
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,6 +27,10 @@ class CaptureViewModel @Inject constructor(
     private val hintFlow = huntRepository.getHint(cardId)
     private val CAPTURE_REWARD: Int = 2
 
+    private val _talk = mutableStateOf(true)
+    val startTalking
+        get() = _talk
+
 
     private var _captureUiState: MutableStateFlow<CaptureUiState> =
         MutableStateFlow(CaptureUiState())
@@ -50,12 +55,13 @@ class CaptureViewModel @Inject constructor(
     }
 
 
+
     data class CaptureUiState(
         val hint: CaptureHint = CaptureHint(0, 0, "", 0),
         val hintSelected: Int = 0,
         val hintList: List<CaptureHint> = emptyList(),
         val unlocked: Boolean = false,
-        val card: Card = Card(0, "", "", Rarity.UNCOMMON, ""),
+        val card: Card = Card(0, "", "", Rarity.UNCOMMON, 0),
         val hintCoins: Int = 0,
         val insufficientCoins: Boolean = false
     )
@@ -74,6 +80,7 @@ class CaptureViewModel @Inject constructor(
             hint = _captureUiState.value.hintList[hintNumber],
             insufficientCoins = false
         )
+        _talk.value = _captureUiState.value.hint.isUnlocked
     }
 
     fun buyHint() {
@@ -89,7 +96,19 @@ class CaptureViewModel @Inject constructor(
             hintCoins = _captureUiState.value.hintCoins - _captureUiState.value.hint.cost,
             hint = _captureUiState.value.hint.copy(isUnlocked = true)
         )
+        if(_captureUiState.value.hint.isUnlocked){
+            _talk.value = true
+        }
     }
+
+    fun startTalking(){
+        _talk.value = true
+    }
+
+    fun stopTalking(){
+        _talk.value= false
+    }
+
 
 
 }

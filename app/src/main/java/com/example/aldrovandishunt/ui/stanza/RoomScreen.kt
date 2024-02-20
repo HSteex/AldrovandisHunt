@@ -62,7 +62,7 @@ fun RoomScreen(
             Text(
                 roomName,
                 fontWeight = FontWeight.Bold,
-                color= Color.Red
+                color = Color.Red
             )
         }
         Spacer(modifier = Modifier.padding(8.dp))
@@ -85,10 +85,8 @@ fun RoomScreen(
                     launchSingleTop = true
                 }
             },
-            itemOverlayOpened = bottomSheetState.isBottomSheetOpen,
             engine = engine,
             modelLoader = modelLoader,
-            cameraNode = cameraNode,
             centerNode = centerNode
         )
     }
