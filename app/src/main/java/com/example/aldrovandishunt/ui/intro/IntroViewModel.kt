@@ -25,8 +25,10 @@ class IntroViewModel @Inject constructor(
     val PAGES = 3
     private var actualPage: Int = 0
 
+
+
     //Soluzione un po spartana per farlo parlare (vuole un mutableStateOf)
-    private val _talk = mutableStateOf(1)
+    private val _talk = mutableStateOf(true)
     val talk
         get() = _talk
 
@@ -77,25 +79,24 @@ class IntroViewModel @Inject constructor(
             endIntro()
             return
         }
-        _talk.value = _talk.value + 1
+        _talk.value = true
         _introUiState.value = _introUiState.value.copy(
             page = actualPage,
             textId = textList[actualPage]!!,
             seconds = secondsList[actualPage]!!,
             skipButtonVisible = false,
         )
+    }
 
-        viewModelScope.launch {
-            delay(_introUiState.value.seconds * 1000L)
-            if (actualPage == PAGES - 1) {
-                _introUiState.value = _introUiState.value.copy(
-                    permissionButtonVisible = true,
-                )
-            } else {
-                _introUiState.value = _introUiState.value.copy(
-                    skipButtonVisible = true,
-                )
-            }
+    fun showButton(){
+        if (actualPage == PAGES - 1) {
+            _introUiState.value = _introUiState.value.copy(
+                permissionButtonVisible = true,
+            )
+        } else {
+            _introUiState.value = _introUiState.value.copy(
+                skipButtonVisible = true,
+            )
         }
     }
 
@@ -119,5 +120,9 @@ class IntroViewModel @Inject constructor(
         viewModelScope.launch {
             intro.value=settingsRepository.getIntro()
         }
+    }
+
+    fun stopTalking(){
+        _talk.value= false
     }
 }

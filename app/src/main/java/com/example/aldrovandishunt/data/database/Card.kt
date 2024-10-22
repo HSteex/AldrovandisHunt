@@ -30,8 +30,6 @@ data class Card(
     val rarity: Rarity,
     val room: Int,
     val isUnlocked: Boolean = false,
-
-    //TODO aggiungere in attesa dei contenuti
 )
 
 enum class Extra{

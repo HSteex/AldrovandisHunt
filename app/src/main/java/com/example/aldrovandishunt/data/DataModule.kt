@@ -10,16 +10,14 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-@Module
-@InstallIn(SingletonComponent::class)
-object DataModule {
-    @Singleton
-    @Provides
-    fun provideSettingsRepository(@ApplicationContext context: Context) = SettingsRepository(context)
-
-    @Singleton
-    @Provides
-    fun providePlacesRepository(@ApplicationContext context: Context) =
-        HuntRepository((context.applicationContext as HuntApplication).database.DatabaseDao())
-
-}
+    @Module
+    @InstallIn(SingletonComponent::class)
+    object DataModule {
+        @Singleton
+        @Provides
+        fun provideSettingsRepository(@ApplicationContext context: Context) = SettingsRepository(context)
+        @Singleton
+        @Provides
+        fun provideHuntRepository(@ApplicationContext context: Context) =
+            HuntRepository((context.applicationContext as HuntApplication).database.DatabaseDao())
+    }

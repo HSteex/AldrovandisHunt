@@ -8,7 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+
 import androidx.compose.material.icons.filled.Backpack
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.BottomAppBar
@@ -29,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,11 +61,11 @@ import io.github.sceneview.node.CameraNode
 import io.github.sceneview.node.Node
 
 sealed class AppScreen(val name: String) {
-    object Map : AppScreen("Map")
-    object Room : AppScreen("Room")
-    object Collection : AppScreen("My Collection")
-    object Hunt : AppScreen("Hunt Screen")
-    object ARScreen : AppScreen("AR")
+    data object Map : AppScreen("Map")
+    data object Room : AppScreen("Room")
+    data object Collection : AppScreen("My Collection")
+    data object Hunt : AppScreen("Hunt Screen")
+    data object ARScreen : AppScreen("AR")
 }
 
 @HiltAndroidApp
@@ -82,6 +84,10 @@ fun TopAppBarFunction(
 ) {
     CenterAlignedTopAppBar(
         title = {
+            if (currentScreen=="Room") {
+
+
+            }
             Text(
                 text = currentScreen,
                 fontWeight = FontWeight.Medium,
@@ -92,7 +98,8 @@ fun TopAppBarFunction(
             if (canNavigateBack) {
                 IconButton(onClick = navigateUp) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack, contentDescription = "Back button"
+                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                        contentDescription = "Back button"
                     )
                 }
             }
@@ -165,9 +172,9 @@ fun Navigator(
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val currentScreen = when (navBackStackEntry?.destination?.route) {
+    val currentScreen = when (currentRoute?.substringBefore('{')?.trimEnd('/')) {
         AppScreen.Map.name -> stringResource(id = R.string.mapButton)
-        AppScreen.Room.name -> "Room" //FIXME Vorrei dare il titolo in base alla stanza in cui ci si trova8i
+        AppScreen.Room.name -> navBackStackEntry?.arguments?.getString("roomName") ?: "Room" //FIXME Vorrei dare il titolo in base alla stanza in cui ci si trova8i
         AppScreen.Collection.name -> stringResource(id = R.string.collectionButton)
         AppScreen.Hunt.name -> "Hunt Screen" //FIXME Non so cosa mettere qua, potrei pure togliere il titolo
         AppScreen.ARScreen.name -> "AR"
@@ -178,14 +185,21 @@ fun Navigator(
     Scaffold(snackbarHost = {
         SnackbarHost(snackbarHostState)
     }, topBar = {
-        if (currentRoute?.contains(AppScreen.ARScreen.name) == true || currentRoute?.contains(AppScreen.Hunt.name)==true ) null
+        if (currentRoute?.contains(AppScreen.ARScreen.name) == true || currentRoute?.contains(
+                AppScreen.Hunt.name
+            ) == true
+        ) null
         else {
-            TopAppBarFunction(currentScreen = currentScreen,
+            TopAppBarFunction(
+                currentScreen = currentScreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() })
         }
     }, bottomBar = {
-        if (currentRoute?.contains(AppScreen.ARScreen.name) == true || currentRoute?.contains(AppScreen.Hunt.name)==true ) null
+        if (currentRoute?.contains(AppScreen.ARScreen.name) == true || currentRoute?.contains(
+                AppScreen.Hunt.name
+            ) == true
+        ) null
         else {
             BottomBar(onMapClick = { navController.navigate(AppScreen.Map.name) },
                 onMyCollectionClick = { navController.navigate(AppScreen.Collection.name) })
@@ -219,16 +233,18 @@ fun NavigationGraph(
             val mapViewModel = hiltViewModel<MapViewModel>()
             MapScreen(navController, introViewModel, mapViewModel)
         }
-        composable("${AppScreen.Room.name}/{roomId}",
-            arguments = listOf(navArgument("roomId") { type = NavType.IntType })) {
+        composable(
+            "${AppScreen.Room.name}/{roomId}/{roomName}",
+            arguments = listOf(
+                navArgument("roomId") { type = NavType.IntType },
+                navArgument("roomName") { type = NavType.StringType })
+        ) {
             val roomViewModel = hiltViewModel<RoomViewModel>()
             RoomScreen(
                 navController,
                 roomViewModel,
-                it.arguments?.getString("roomName") ?: "",
                 engine,
                 modelLoader,
-                cameraNode,
                 centerNode
             )
         }
@@ -238,13 +254,23 @@ fun NavigationGraph(
                 navController, collectionViewModel, engine, modelLoader, cameraNode, centerNode
             )
         }
-        composable("${AppScreen.Hunt.name}/{cardId}/{cardName}",
-            arguments = listOf(navArgument("cardId") { type = NavType.IntType }, navArgument("cardName") { type = NavType.StringType })) {
+        composable(
+            "${AppScreen.Hunt.name}/{cardId}/{cardName}",
+            arguments = listOf(
+                navArgument("cardId") { type = NavType.IntType },
+                navArgument("cardName") { type = NavType.StringType })
+        ) {
             val captureViewModel = hiltViewModel<CaptureViewModel>()
-            CaptureScreen(navController, captureViewModel, it.arguments?.getInt("cardId") ?: -1, it.arguments?.getString("cardName") ?: "")
+            CaptureScreen(
+                navController,
+                captureViewModel,
+                it.arguments?.getInt("cardId") ?: -1,
+                it.arguments?.getString("cardName") ?: ""
+            )
         }
         composable("${AppScreen.ARScreen.name}/{cardName}",
-            arguments = listOf(navArgument("cardName") { type = NavType.StringType })) {
+            arguments = listOf(navArgument("cardName") { type = NavType.StringType })
+        ) {
             ARScene(navController, it.arguments?.getString("cardName") ?: "")
         }
     }

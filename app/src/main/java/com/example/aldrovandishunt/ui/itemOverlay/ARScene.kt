@@ -1,8 +1,6 @@
 package com.example.aldrovandishunt.ui.itemOverlay
 
 import androidx.compose.foundation.background
-import androidx.compose.runtime.Composable
-
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,26 +13,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.aldrovandishunt.R
 import com.example.aldrovandishunt.ui.theme.primaryOrange
@@ -48,7 +41,6 @@ import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.createAnchorOrNull
 import io.github.sceneview.ar.arcore.getUpdatedPlanes
 import io.github.sceneview.ar.arcore.isValid
-import io.github.sceneview.ar.getDescription
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.ar.rememberARCameraNode
 import io.github.sceneview.loaders.MaterialLoader
@@ -66,14 +58,14 @@ import io.github.sceneview.rememberView
 
 
 lateinit var kModelFile: String
-const val kMaxModelInstances=1
+const val kMaxModelInstances = 1
 
 @Composable
 fun ARScene(
     navController: NavController,
     cardName: String
-){
-    kModelFile= "models/${cardName}.glb"
+) {
+    kModelFile = "models/${cardName}.glb"
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -85,10 +77,6 @@ fun ARScene(
         val cameraNode = rememberARCameraNode(engine)
         val childNodes = rememberNodes()
         val view = rememberView(engine)
-        val collisionSystem = rememberCollisionSystem(view)
-
-        var planeRenderer by remember { mutableStateOf(true) }
-
         val modelInstances = remember { mutableListOf<ModelInstance>() }
         var trackingFailureReason by remember {
             mutableStateOf<TrackingFailureReason?>(null)
@@ -100,25 +88,15 @@ fun ARScene(
             engine = engine,
             view = view,
             modelLoader = modelLoader,
-            collisionSystem = collisionSystem,
             sessionConfiguration = { session, config ->
-                config.depthMode =
-                    when (session.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
-                        true -> Config.DepthMode.AUTOMATIC
-                        else -> Config.DepthMode.DISABLED
-                    }
                 config.instantPlacementMode = Config.InstantPlacementMode.LOCAL_Y_UP
-                config.lightEstimationMode =
-                    Config.LightEstimationMode.ENVIRONMENTAL_HDR
             },
             cameraNode = cameraNode,
-            planeRenderer = planeRenderer,
             onTrackingFailureChanged = {
                 trackingFailureReason = it
             },
             onSessionUpdated = { session, updatedFrame ->
                 frame = updatedFrame
-
                 if (childNodes.isEmpty()) {
                     updatedFrame.getUpdatedPlanes()
                         .firstOrNull { it.type == Plane.Type.HORIZONTAL_UPWARD_FACING }
@@ -133,36 +111,14 @@ fun ARScene(
                         }
                 }
             },
-            onGestureListener = rememberOnGestureListener(
-                onSingleTapConfirmed = { motionEvent, node ->
-                    if (node == null) {
-                        val hitResults = frame?.hitTest(motionEvent.x, motionEvent.y)
-                        hitResults?.firstOrNull {
-                            it.isValid(
-                                depthPoint = false,
-                                point = false
-                            )
-                        }?.createAnchorOrNull()
-                            ?.let { anchor ->
-                                planeRenderer = false
-                                childNodes += createAnchorNode(
-                                    engine = engine,
-                                    modelLoader = modelLoader,
-                                    materialLoader = materialLoader,
-                                    modelInstances = modelInstances,
-                                    anchor = anchor
-                                )
-                            }
-                    }
-                })
         )
 
-        Row (
-            modifier= Modifier
+        Row(
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
 
-        ){
+        ) {
             IconButton(
                 onClick = { navController.navigateUp() },
                 modifier = Modifier
@@ -178,7 +134,7 @@ fun ARScene(
 
             }
             Box(
-                modifier= Modifier
+                modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
                     .align(Alignment.CenterVertically)

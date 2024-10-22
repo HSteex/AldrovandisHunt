@@ -2,7 +2,6 @@ package com.example.aldrovandishunt.data.database
 
 import androidx.room.Dao
 import androidx.room.Query
-import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -17,7 +16,10 @@ interface DatabaseDao {
     fun getCards(id: Int): Flow<List<Card>>
 
     @Query("SELECT Rooms.name FROM Rooms,Beacon WHERE UID=:uid")
-    fun getRoom(uid: String): String
+    fun getRoomByBeacon(uid: String): String
+
+    @Query("SELECT name FROM Rooms WHERE ID=:id")
+    fun getRoomName(id: Int): Flow<String>
 
     @Query("SELECT * FROM Card WHERE isUnlocked=1")
     fun getUnlockedCards(): Flow<List<Card>>
@@ -28,7 +30,7 @@ interface DatabaseDao {
     @Query("SELECT * FROM Card WHERE ID=:id")
     fun getCard(id: Int): Flow<Card>
 
-    @Query("SELECT COUNT(*) FROM Card WHERE room=:room")
+    @Query("SELECT COUNT(*) FROM Card WHERE room=:room AND isUnlocked=0")
     fun getCardCount(room: Int): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM Card WHERE room=:room AND isUnlocked=1")

@@ -15,13 +15,11 @@ class SettingsRepository (private val context: Context){
         private val INTRO = booleanPreferencesKey("intro")
         private val HINT_COINS = intPreferencesKey("hint_coins")
     }
-
     suspend fun setIntro(value: Boolean){
         context.dataStore.edit { settings ->
             settings[INTRO] = value
         }
     }
-
     suspend fun getIntro(): Boolean{
         val settings = context.dataStore.data.first()
         return settings[INTRO] ?: true

@@ -2,12 +2,10 @@ package com.example.aldrovandishunt.ui.myCollection
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aldrovandishunt.data.database.Card
 import com.example.aldrovandishunt.data.database.HuntRepository
-import com.example.aldrovandishunt.data.database.Rarity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,7 +38,6 @@ class MyCollectionViewModel @Inject constructor(
             _unlockedCardsFlow.collect { cards ->
                 _unlockedCardsUiState.value =
                     _unlockedCardsUiState.value.copy(unlockedCards = cards)
-                Log.v("MyCollectionViewModel", "init")
             }
         }
     }

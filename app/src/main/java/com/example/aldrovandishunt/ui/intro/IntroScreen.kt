@@ -1,5 +1,7 @@
 package com.example.aldrovandishunt.ui.intro
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,8 +15,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Api
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults.buttonColors
 import androidx.compose.material3.Icon
@@ -26,7 +28,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,15 +60,13 @@ fun IntroScreen(
         width < 600.dp -> 18.sp
         else -> 20.sp
     }
-    val cameraPermissionState = rememberPermissionState(
-        android.Manifest.permission.CAMERA
-    )
-    val locationPermissionState = rememberPermissionState(
-        android.Manifest.permission.ACCESS_FINE_LOCATION
-    )
-    val bluetoothPermissionState = rememberPermissionState(
-        android.Manifest.permission.BLUETOOTH_SCAN
-    )
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            viewModel.acceptedPermissions()
+        }
+    }
 
 
     if (viewModel.intro.value == true) {
@@ -111,6 +110,10 @@ fun IntroScreen(
                                 },
                                 minDelayInMillis = 50,
                                 maxDelayInMillis = 51,
+                                onEffectCompleted = {
+                                    viewModel.stopTalking()
+                                    viewModel.showButton()
+                                }
                             )
                             if (introUiState.skipButtonVisible) {
                                 Button(
@@ -118,9 +121,11 @@ fun IntroScreen(
                                     colors = buttonColors()
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(text = if(introUiState.page==viewModel.PAGES-1) "Inizia!" else "Avanti")
+                                        Text(text = if(introUiState.page==viewModel.PAGES-1) stringResource(
+                                            R.string.start
+                                        ) else stringResource(id = R.string.continue_button))
                                         Icon(
-                                            imageVector = Icons.Default.ArrowForward,
+                                            imageVector = Icons.AutoMirrored.Default.ArrowForward,
                                             contentDescription = "Freccia destra",
                                             modifier = Modifier.padding(start = 8.dp)
                                         )
@@ -130,17 +135,14 @@ fun IntroScreen(
                             if (introUiState.permissionButtonVisible) {
                                 Button(
                                     onClick = {
-                                        cameraPermissionState.launchPermissionRequest()
-                                        if(cameraPermissionState.hasPermission){
-                                                    viewModel.acceptedPermissions()
-                                        }
+                                        requestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
                                     },
                                     colors = buttonColors(
                                         containerColor = bluePermission,
                                     )
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(text = "Accetta permessi")
+                                        Text(text = stringResource(R.string.accept_permissions))
                                         Icon(
                                             imageVector = Icons.Default.Api,
                                             contentDescription = "Freccia destra",
@@ -152,8 +154,7 @@ fun IntroScreen(
                         }
                     }
                     AnimatedTalkingMan(
-                        durationInSeconds = introUiState.seconds,
-                        talk = viewModel.talk.value,
+                        talk = viewModel.talk.value
                     )
                 }
             }
@@ -164,15 +165,12 @@ fun IntroScreen(
 
 @Composable
 fun AnimatedTalkingMan(
-    durationInSeconds: Int,
-    talk: Int,
+    talk:Boolean,
 ) {
     var showOpenMouth by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = talk) {
-        val endTime = System.currentTimeMillis() + durationInSeconds * 1000
-        while (System.currentTimeMillis() < endTime) {
+        while (talk) {
             showOpenMouth = Random.nextBoolean()
             delay(100) // Ritardo tra gli switch
         }
@@ -191,7 +189,6 @@ fun AnimatedTalkingMan(
             contentDescription = "Aldrovandi con bocca chiusa",
             modifier = Modifier.fillMaxSize()
         )
-
     }
 }
 

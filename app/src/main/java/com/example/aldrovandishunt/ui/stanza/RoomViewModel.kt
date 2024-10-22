@@ -1,6 +1,5 @@
 package com.example.aldrovandishunt.ui.stanza
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -40,6 +39,11 @@ class RoomViewModel @Inject constructor(
                 _roomUiState.value = _roomUiState.value.copy(cards = cards)
             }
         }
+        viewModelScope.launch {
+            huntRepository.getRoomName(roomId).collect { room ->
+                _roomUiState.value = _roomUiState.value.copy(roomName = room)
+            }
+        }
     }
 
     fun closeBottomSheet() {
@@ -58,6 +62,7 @@ class RoomViewModel @Inject constructor(
 
 
     data class RoomUiState(
+        val roomName: String = "",
         val cards: List<Card> = emptyList()
     )
 

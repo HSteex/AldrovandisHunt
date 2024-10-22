@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.aldrovandishunt.AppScreen
-import com.example.aldrovandishunt.data.database.Card
 import com.example.aldrovandishunt.ui.itemOverlay.ItemOverlayScreen
 import com.google.android.filament.Engine
 import io.github.sceneview.loaders.ModelLoader
@@ -60,10 +59,8 @@ fun MyCollectionScreen(
                     launchSingleTop = true
                 }
             },
-
             engine = engine,
             modelLoader = modelLoader,
-
             centerNode = centerNode
         )
     }

@@ -1,6 +1,5 @@
 package com.example.aldrovandishunt.ui.caccia
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,7 +17,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -44,10 +41,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -55,8 +52,7 @@ import com.example.aldrovandishunt.R
 import com.example.aldrovandishunt.data.database.CaptureHint
 import com.example.aldrovandishunt.data.database.Card
 import com.example.aldrovandishunt.ui.intro.TypewriterTextEffect
-import com.example.aldrovandishunt.ui.myCollection.Card
-import com.example.aldrovandishunt.ui.theme.lightGreen
+import com.example.aldrovandishunt.ui.myCollection.CardComposable
 import com.example.aldrovandishunt.ui.theme.lightRed
 import com.example.aldrovandishunt.ui.theme.selectedOrange
 import com.example.aldrovandishunt.ui.theme.primaryOrange
@@ -178,7 +174,7 @@ fun CaptureHintRow(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "Hint ${index + 1}",
+                                text = stringResource(R.string.hint, index + 1),
                                 style = TextStyle(
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
@@ -230,29 +226,57 @@ fun CaptureHintRow(
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier.height(24.dp),
                             ) {
                                 Text(
-                                    "Hint cost: ${hintList[hintSelected].cost} ",
-                                    style = TextStyle(fontSize = 16.sp)
+                                    stringResource(
+                                        R.string.hint_cost,
+                                    ),
+                                    style = TextStyle(fontSize = 18.sp, color = Color.Black),
+                                    textAlign = TextAlign.Center
                                 )
-                                //TODO Add coin icon
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = hintList[hintSelected].cost.toString(),
+                                    style = TextStyle(
+                                        fontSize = 18.sp,
+                                        color = Color.Black,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                                Image(
+                                    painterResource(id = R.drawable.hint_svgrepo_com),
+                                    contentDescription = "Token",
+                                    modifier = Modifier
+                                        .height(24.dp)
+                                        .padding(start = 2.dp)
+                                )
                             }
-                            Button(onClick = {
-                                onBuyHint()
-                            },
-                                colors= ButtonDefaults.buttonColors(containerColor = selectedOrange)) {
-                                Text(text = "Buy hint", modifier=Modifier.padding(horizontal = 8.dp), color=Color.Black)
+                            Button(
+                                onClick = {
+                                    onBuyHint()
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = selectedOrange),
+                                modifier = Modifier.padding(8.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.buy_hint),
+                                    modifier = Modifier.padding(horizontal = 8.dp),
+                                    color = Color.Black,
+                                    fontSize = 16.sp
+                                )
 
                                 Icon(
                                     imageVector = Icons.Default.LockOpen,
                                     contentDescription = "Arrow forward",
-                                    tint=Color.Black
+                                    tint = Color.Black
                                 )
                             }
+                            Spacer(modifier = Modifier.height(24.dp))
                             if (insufficientCoins) {
                                 Text(
-                                    text = "Insufficient coins",
+                                    text = stringResource(R.string.insufficient_coins),
                                     style = TextStyle(fontSize = 16.sp, color = Color.Red)
                                 )
                             }
@@ -268,11 +292,14 @@ fun CaptureHintRow(
                 .align(Alignment.Bottom),
             verticalArrangement = Arrangement.SpaceBetween,
 
-        ) {
-            Column (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp)){
-                Image(painter= painterResource(id = R.drawable.hint_svgrepo_com),
+            ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.hint_svgrepo_com),
                     contentDescription = "Hint token",
                     modifier = Modifier.size(64.dp)
                 )
@@ -330,23 +357,26 @@ fun CardUnlockScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "You have unlocked this card!",
+            text = stringResource(R.string.you_have_unlocked_this_card),
             style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold)
         )
         Spacer(modifier = Modifier.height(48.dp))
         val horizontalSpacer = 36.dp
         val width = LocalConfiguration.current.screenWidthDp.dp
         val cardWidth = (width - (horizontalSpacer + 16.dp)) / 2
-        Card(
+        CardComposable(
             card = card,
             onCardClick = {},
             cardWidth = cardWidth
         )
         Spacer(modifier = Modifier.height(48.dp))
-        Text(text = "You can find it in your collection", style = TextStyle(fontSize = 16.sp))
+        Text(
+            text = stringResource(R.string.find_in_collection),
+            style = TextStyle(fontSize = 16.sp)
+        )
         Spacer(modifier = Modifier.height(100.dp))
         Button(onClick = { onContinue() }) {
-            Text(text = "Continue")
+            Text(text = stringResource(R.string.continue_button))
             Spacer(modifier = Modifier.width(8.dp))
             Icon(
                 imageVector = Icons.AutoMirrored.Default.ArrowForward,

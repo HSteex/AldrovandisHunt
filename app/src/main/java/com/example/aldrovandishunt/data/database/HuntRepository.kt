@@ -7,7 +7,10 @@ class HuntRepository (private val huntDao: DatabaseDao){
 
     suspend fun unlockHint(hintId: Int) = huntDao.unlockHint(hintId)
     fun getCards(id: Int) : Flow<List<Card>> = huntDao.getCards(id)
-    fun getRoom(uid: String) : String = huntDao.getRoom(uid)
+    fun getRoomByBeacon(uid: String) : String = huntDao.getRoomByBeacon(uid)
+
+    fun getRoomName(id: Int) : Flow<String> = huntDao.getRoomName(id)
+
     fun getUnlockedCards() : Flow<List<Card>> = huntDao.getUnlockedCards()
 
     fun getHint(cardId: Int) : Flow<List<CaptureHint>> = huntDao.getHint(cardId)

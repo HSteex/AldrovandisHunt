@@ -2,7 +2,7 @@
     <string name="app_name">Aldrovandi\'sHunt</string>
     <string name="introText_0">Ciao sono Ulisse Aldrovandi, benvenuto nel mio Museo. Questa applicazione ti permetterà di imparare divertendoti, sei pronto? Premi su Continua per iniziare!</string>
     <string name="introText_1">Il tuo scopo è collezionare tutte le carte sparse nel museo. Ogni carta nasconde al suo interno delle soprese. Per catturarle dovrai premere sulla carta e seguire i miei indizi cercando informazioni all\'interno del museo. Una volta capito di che essere vivente sto parlando potrai scansionarlo attraverso la fotocamera del tuo dispositivo. \n</string>
-    <string name="introText_2">"Bene, è tutto pronto. Ti chiedo soltanto un'ultimo favore, l'applicazione non funziona senza i permessi necessarri, ti chiedo quindi di Premere sul bottone Accetta permessi "</string>
+    <string name="introText_2">"Bene, è tutto pronto. Ti chiedo soltanto un'ultimo favore: l'applicazione non funziona senza i permessi necessarri, ti chiedo quindi di Premere sul bottone Accetta permessi "</string>
     <string name="collectionButton">Collection</string>
     <string name="mapButton">Map</string>
     <string name="uncommonRarity">Uncommon</string>
@@ -10,7 +10,6 @@
     <string name="epicRarity">Epic</string>
     <string name="legendaryRarity">Legendary</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="AR_pointGround">Point the camera to the ground</string>
     <string name="AR_tapToPlace">Tap on the ground to place a model</string>
     <string name="AR3D_internal_error">Internal error</string>
@@ -19,4 +18,18 @@
     <string name="AR3D_camera_in_use">Camera is used by another application</string>
     <string name="cards_to_unlock">Cards to unlock</string>
     <string name="cards_unlocked">Cards unlocked</string>
+    <string name="hint">Hint %1$s</string>
+    <string name="hint_cost">"Hint cost:"</string>
+    <string name="buy_hint">Buy hint</string>
+    <string name="insufficient_coins">Insufficient coins</string>
+    <string name="you_have_unlocked_this_card">You have unlocked this card!</string>
+    <string name="find_in_collection">You can find it in your collection</string>
+    <string name="continue_button">Continue</string>
+    <string name="start">Start!</string>
+    <string name="accept_permissions">Accept permissions</string>
+    <string name="name">Name</string>
+    <string name="description">Description</string>
+    <string name="view_in_ar">View in AR</string>
+    <string name="you_are_in">"You are in: "</string>
+    <string name="hello_blank_fragment">Hello</string>
 </resources>
